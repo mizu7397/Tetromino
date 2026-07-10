@@ -77,7 +77,7 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-    void MoveAllLayersDown(int starty)
+    void MoveAllLayersDown(int startY)
     {
         for (int y = startY; y < height;y++)
         {
