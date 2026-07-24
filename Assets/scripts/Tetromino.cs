@@ -7,8 +7,6 @@ using UnityEngine.UIElements;
 
 public class Tetromino : MonoBehaviour
 {
-    //各テトリミノのブロックが占める相対位置
-    public Vector4[] childBlockPositions;
 
     //ゲームが開始されてから経過した時間
     private float fallTime;
@@ -90,41 +88,27 @@ public class Tetromino : MonoBehaviour
 
         if (IsValidGridPos())
         {
-            //有効な位置であればグリッドマネージャーを更新(移動中のブロックのグリッドの位置は更新不要)
-            //isFallingがtrueの場合のみ、グリッドマネージャーにブロックを固定する可能性があることを伝える
-            if (isFalling)
-            {
-                gridManager.UpdateGrid(this);//グリッドマネージャーを更新
-            }
-        }
-        else
-        {
-            //無効な位置であれば元の位置に戻す
             transform.position -= direction;
 
-            if (isFalling)
+            //有効な位置であればグリッドマネージャーを更新(移動中のブロックのグリッドの位置は更新不要)
+            //isFallingがtrueの場合のみ、グリッドマネージャーにブロックを固定する可能性があることを伝える
+            if (isFalling　|| direction.y < 0)
             {
-                //地面やほかのブロックに衝突した場合、テトリミノを固定する
-                gridManager.AddTetrominoToGrid(this);
-                gridManager.CheckForFullLines();//ライン消去チェック
-                this.enabled = false;//このテトリミノの操作を停止
-                FindObjectOfType<BlockSpawner>().SpawnNextTetromino();//次のテトリミノを生成
+                LockTetromino();//テトリスをストップ
             }
         }
+       
     }
 
     void Rotate()
     {
-        //開店前の角度を保存
-        Vector3 previousRotation = transform.eulerAngles;
 
         //回転の中心を考慮して回転
         transform.RotateAround(transform.TransformPoint(rotationPoint), Vector3.forward, 90);
 
         if (!IsValidGridPos())
         {
-            //無効な位置であれば元の角度に戻す
-            transform.eulerAngles = previousRotation;
+            transform.RotateAround(transform.TransformPoint(rotationPoint), Vector3.forward, -90);
         }
     }
     void HardDrop()
@@ -134,13 +118,19 @@ public class Tetromino : MonoBehaviour
             transform.position+= new Vector3(0,-1,0);
         }
         transform.position-= new Vector3(0,-1,0); //衝突したので一歩戻る
+        LockTetromino();
+        
+    }
 
+    void LockTetromino()
+    {
         //着地処理
         gridManager.AddTetrominoToGrid(this);
         gridManager.CheckForFullLines();
-        this.enabled=false;
-        FindObjectOfType<BlockSpawner>();
+        this.enabled = false;
+        FindObjectOfType<BlockSpawner>().SpawnNextTetromino();
     }
+
 
     bool IsValidGridPos()
     {
@@ -150,19 +140,17 @@ public class Tetromino : MonoBehaviour
             Vector3 blockPos = child.position;
             int x = Mathf.RoundToInt(blockPos.x);
             int y = Mathf.RoundToInt(blockPos.y);
-            int z = Mathf.RoundToInt(blockPos.z);//3DテトリスなのでZ軸も考慮
 
             //協会チェック(GridManagerのサイズを使用)
             if (x<0 || x >=gridManager.width||
-                y<0 || y >=gridManager.height ||
-                z <0||z>=gridManager.depth)
+                y<0 || y >=gridManager.height)
             {
                 return false; //ボード外
             }
 
             //既にほかのブロックが存在するかチェック
             //ただし。自身の子ブロックとの衝突は無視
-            if (gridManager.grid[x,y,z] != null && gridManager.grid[x,y,z].parent!=transform)
+            if (gridManager.grid[x,y] != null)
             {
                 return false; //ほかのブロックとの衝突
             }

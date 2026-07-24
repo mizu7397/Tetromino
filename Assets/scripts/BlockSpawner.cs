@@ -20,7 +20,10 @@ public class BlockSpawner : MonoBehaviour
         }
 
         int randomIndex = Random.Range(0, tetrominoPrefabs.Length);//0ˆÈãA”z—ñ‚Ì”–¢–‚Ì’†‚©‚ç”‚ğƒ‰ƒ“ƒ_ƒ€
-        GameObject newTetromino = Instantiate(tetrominoPrefabs[randomIndex], transform.position
+
+        Vector3 spawnPos = new Vector3(transform.position.x, transform.position.y, 0);
+
+        GameObject newTetromino = Instantiate(tetrominoPrefabs[randomIndex], spawnPos
             , Quaternion.identity);
 
 
