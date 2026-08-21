@@ -110,7 +110,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2cc90641d900694dafab836023b6f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  childBlockPositions: []
   fallSpeed: 1
   rotationPoint: {x: 0, y: 0, z: 0}
   gridManager: {fileID: 0}
